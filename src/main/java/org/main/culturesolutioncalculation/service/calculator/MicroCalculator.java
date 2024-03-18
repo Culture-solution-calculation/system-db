@@ -9,7 +9,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MicroCalculator implements Calculator{
+public class MicroCalculator{
     private DatabaseConnector conn;
     private Map<String, Map<String, Double>> compoundsRatio = new HashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
 

@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface Calculator {
 
-    Map<String, Double> calculateWithRatio(Map<String, Double> map);
+    Map<String, Map<String, Double>> calculateWithRatio(Map<String, Double> map);
 
 
 }
