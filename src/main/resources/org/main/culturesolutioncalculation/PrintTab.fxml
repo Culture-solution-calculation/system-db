@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import java.net.URL?>
+
+<Tab xmlns="http://javafx.com/javafx"
+     xmlns:fx="http://javafx.com/fxml"
+     fx:controller="org.main.culturesolutioncalculation.PrintTabController"
+     text="프린트">
+    <content>
+        <SplitPane dividerPositions="0.25">
+            <stylesheets>
+                <URL value="@style/application.css" />
+            </stylesheets>
+            <!-- 첫 번째 팬 -->
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                <VBox styleClass="vbox-container">
+                    <Button text="가져오기" onAction="#load" />
+                    <!-- UserInfo 출력 -->
+                    <VBox spacing="10">
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="고객 이름: " />
+                            <Label fx:id="customerNameLabel" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="주소: " />
+                            <Label fx:id="addressLabel" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="연락처: " />
+                            <Label fx:id="contactLabel" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="의뢰 일자: " />
+                            <Label fx:id="processingDateLabel" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="재배규모: " />
+                            <Label fx:id="scaleLabel" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="배양액 종류: " />
+                            <Label fx:id="selectedCultureLabel" />
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                            <Label text="재배작물: " />
+                            <Label fx:id="selectedCropLabel" />
+                        </HBox>
+                    </VBox>
+                    <!-- SettingInfo 출력 -->
+                    <VBox spacing="10">
+                        <Label fx:id="settingsLabel" lineSpacing="10"/>
+                    </VBox>
+                </VBox>
+            </AnchorPane>
+
+            <!-- 두 번째 팬 -->
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                <VBox styleClass="vbox-container" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                </VBox>
+            </AnchorPane>
+        </SplitPane>
+    </content>
+</Tab>
