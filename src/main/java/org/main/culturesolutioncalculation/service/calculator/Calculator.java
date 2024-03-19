@@ -6,5 +6,5 @@ public interface Calculator {
 
     Map<String, Map<String, Double>> calculateWithRatio(Map<String, Double> map);
 
-
+    //void save()
 }

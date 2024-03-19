@@ -15,7 +15,7 @@ public class MacroCalculator{
     private DatabaseConnector conn;
     private Map<String, Map<String, Double>> compoundsRatio = new LinkedHashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
 
-    private Map<String, Double> calculated100 = new LinkedHashMap<>(); //프론트에서 보여지는 자동 계산 결과
+    private Map<String, Double> distributedValues = new LinkedHashMap<>(); //프론트에서 보여지는 자동 계산 결과
 
     private Map<String, FinalCal> calculatedMacro=  new LinkedHashMap<>();
 
@@ -35,7 +35,7 @@ public class MacroCalculator{
     };
     //출력용 다량원수 별 100배액 계산-  calculatedMacro에 저장
     private void calculateWith100(){
-        if(calculated100.size()==0) System.err.println("다량 원수 처방 농도가 계산되지 않았습니다.");
+        if(distributedValues.size()==0) System.err.println("다량 원수 처방 농도가 계산되지 않았습니다.");
         String query = "insert into calculatedMacro (";
 
 
@@ -57,7 +57,7 @@ public class MacroCalculator{
                 String macro_kr = resultSet.getString("macro_kr"); //화합물 한글명
                 double mass = resultSet.getDouble("mass");//화합물 질량
 
-                calculated100.put(macro, resultSet.getDouble("mass"));
+                distributedValues.put(macro, resultSet.getDouble("mass"));
                 calculatedMacro.put(macro, new FinalCal(macro_kr, mass)); //100배액 계산을 위해 화합물과 그 질량 저장
 
                 Map<String, Double> compoundRatio = new LinkedHashMap<>(); //ex. 질산칼슘4수염이 갖는 원수의 이름과 질량비를 갖는 map
@@ -90,7 +90,7 @@ public class MacroCalculator{
                 allocatedAmount = ratio * minRatioValue;
                 result.put(macro, allocatedAmount);
             }
-            calculated100.put(compound, minRatioValue * calculated100.get(compound)); //최소 비와 화합물의 분자량을 곱해서 넣음
+            distributedValues.put(compound, minRatioValue * distributedValues.get(compound)); //최소 비와 화합물의 분자량을 곱해서 넣음
             results.put(compound, result);
 
             //*****************************최종 딱 minValue * mass 한 값만 들어와야 함*****************
@@ -101,11 +101,11 @@ public class MacroCalculator{
     }
 
     private double getMinRatioValue(Map<String, Double> innerRatio, Map<String, Double> result, double minRatioValue) {
-        double ratio;
+        double ratio, available, amountBasedOnRatio;
         for (String macro : innerRatio.keySet()) { // ex; compound에 대한 {NH4N=1.0, NO3N=1.0}, NH4N과 NO3N이 macro
-            double available = result.get(macro); //해당 원수의 처방농도
+            available = result.get(macro); //해당 원수의 처방농도
             ratio = innerRatio.get(macro);
-            double amountBasedOnRatio = available / ratio;
+            amountBasedOnRatio = available / ratio;
             minRatioValue = Math.min(minRatioValue, amountBasedOnRatio);
         }
         return minRatioValue;
@@ -116,7 +116,11 @@ public class MacroCalculator{
         getMajorCompoundRatio(is4);
         return calculateWithRatio(userFertilization);
     }
-
+    //원수 고려 여부, 처방 농도, 고려 원수, 기준값 -> db에 저장하는 함수
+    public void save(boolean isConsidered, Map<String, Double> userFertilization, Map<String, Double> consideratedValue, Map<String, Double>standardValue ){
+        String query = "";
+        if(isConsidered){}
+    }
 
 
 }
