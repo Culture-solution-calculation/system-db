@@ -113,13 +113,18 @@ public class MacroCalculator{
 
     //원수 고려 없이 계산 - 프론트에서 hashMap fertilization, is4(4수염인지 10수염인지) 넘어오게 파라미터 넣기
     public Map<String, Map<String, Double>> calculateWithoutConsideredValue(Map<String, Double> userFertilization, boolean is4, boolean isConsidered){ //처방 농도
+        if(isConsidered){
+            //기준값에서 원수값을 ?서 처방농도를 구하는 함수 필요
+        }
         getMajorCompoundRatio(is4);
         return calculateWithRatio(userFertilization);
     }
     //원수 고려 여부, 처방 농도, 고려 원수, 기준값 -> db에 저장하는 함수
     public void save(boolean isConsidered, Map<String, Double> userFertilization, Map<String, Double> consideratedValue, Map<String, Double>standardValue ){
         String query = "";
-        if(isConsidered){}
+        if(isConsidered){
+
+        }
     }
 
 
