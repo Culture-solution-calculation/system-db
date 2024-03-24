@@ -15,6 +15,8 @@ public class MacroCalculator{
     private DatabaseConnector conn;
 
     private int user_id;
+    private int users_macro_consideredValues_id;
+
     private Map<String, Map<String, Double>> compoundsRatio = new LinkedHashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
 
     Map<String, Map<String, Double>> distributedValues = new LinkedHashMap<>(); //프론트에서 보여지는 자동 계산 결과
@@ -47,8 +49,13 @@ public class MacroCalculator{
         return user_id;
     }
 
+
     //처방 농도 계산 함수. '기준량 - 원소성분 = 처방농도' 수행. 원수 고려 안하면 0으로 넘어와야 함
     private void calculateFertilizationValue(Map<String, Double> standardValuesFront, Map<String, Double> consideredValuesFront ){
+        //프론트에서 받은 값 저장해야 하는지는 좀 더 고민해보기. 지워도 될듯함
+        standardValues = standardValuesFront;
+        consideredValues = consideredValuesFront;
+
         for (String valueName : standardValuesFront.keySet()) {
             if(consideredValuesFront.get(valueName) < standardValuesFront.get(valueName)){
                 fertilization.put(valueName, standardValuesFront.get(valueName) - consideredValuesFront.get(valueName));
@@ -71,10 +78,10 @@ public class MacroCalculator{
 
             while(resultSet.next()){
                 String macro = resultSet.getString("macro"); //질산칼슘4수염, 질산칼륨, 질산암모늄 등등
-                String macro_kr = resultSet.getString("macro_kr"); //화합물 한글명
+                String solution = resultSet.getString("solution"); //양액 타입 (A,B, C)
                 double mass = resultSet.getDouble("mass");//화합물 질량
 
-                molecularMass.put(macro, new FinalCal(macro_kr, mass)); //100배액 계산을 위해 화합물과 그 질량 저장
+                molecularMass.put(macro, new FinalCal(solution, mass)); //100배액 계산을 위해 화합물과 그 질량 저장
 
                 Map<String, Double> compoundRatio = new LinkedHashMap<>(); //ex. 질산칼슘4수염이 갖는 원수의 이름과 질량비를 갖는 map
                 for (String major : fertilization.keySet()) {
@@ -132,12 +139,52 @@ public class MacroCalculator{
     //원수 고려 여부, 처방 농도, 고려 원수, 기준값 -> db에 저장하는 함수
     public void save(boolean isConsidered, String unit, Map<String, Double> userFertilization, Map<String, Double> consideredValue, Map<String, Double>standardValue ){
         insertIntoUsersMacroConsideredValues(isConsidered, unit); //원수 고려 값 테이블에 저장
+        insertIntoUsersMacroFertilization();
         insertIntoUsersMacroCalculatedMass();
 
     }
 
-    private void insertIntoUsersMacroCalculatedMass() { //계산된 질량 값 DB 저장
+    private void insertIntoUsersMacroFertilization() { //계산된 처방값 DB 저장
+        for (String macro : distributedValues.keySet()) {
+            String query = "insert into users_macro_fertilization (users_macro_consideredValues_id, macro";
+            for (String element : distributedValues.get(macro).keySet()) {
+                query += ", "+element;
+            }
+            query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
+            query += "values (" +users_macro_consideredValues_id+", "+"'"+macro+"'";
+            for (String element : distributedValues.get(macro).keySet()) {
+                query += ", "+distributedValues.get(macro).get(element);
+            }
+            query += ")";
+            try(Connection connection = conn.getConnection();
+                Statement stmt = connection.createStatement();){
+                int result = stmt.executeUpdate(query);
 
+                //if(result>0) System.out.println("success insert users_macro_fertilization");
+                //else System.out.println("insert failed users_macro_fertilization");
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void insertIntoUsersMacroCalculatedMass() { //계산된 질량 값 DB 저장
+        String unit = "'kg'";
+        for (String macro : molecularMass.keySet()) {
+            String query = "insert into users_macro_calculatedMass (user_id, users_macro_consideredValues_id, macro, mass, unit) " +
+                    "values ("+user_id+", "+users_macro_consideredValues_id+", "+"'"+macro+"'"+", "+molecularMass.get(macro).getMass()+", "+unit+")";
+
+            System.out.println("query = " + query);
+            try(Connection connection = conn.getConnection();
+                    Statement stmt = connection.createStatement();){
+                int result = stmt.executeUpdate(query);
+
+                //if(result>0) System.out.println("success");
+                //else System.out.println("insert failed");
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
     }
 
     private void insertIntoUsersMacroConsideredValues(boolean isConsidered, String unit) { //고려 원수 값 DB 저장
@@ -157,9 +204,14 @@ public class MacroCalculator{
         }
         try (Connection connection = conn.getConnection();
             Statement stmt = connection.createStatement()) {
-            int result = stmt.executeUpdate(query);
+            int result = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
             if (result > 0) {
                 System.out.println("success insert users_macro_consideredValues");
+                ResultSet generatedKeys = stmt.getGeneratedKeys();
+                if(generatedKeys.next()){
+                    int id = generatedKeys.getInt(1);
+                    users_macro_consideredValues_id = id; //fk로 사용하기 위해 배정
+                }
             } else {
                 System.out.println("insert failed users_macro_consideredValues");
             }
