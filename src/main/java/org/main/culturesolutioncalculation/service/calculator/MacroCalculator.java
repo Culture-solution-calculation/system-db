@@ -13,15 +13,20 @@ public class MacroCalculator{
 
 
     private DatabaseConnector conn;
+
+    private int user_id;
     private Map<String, Map<String, Double>> compoundsRatio = new LinkedHashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
 
-    private Map<String, Double> distributedValues = new LinkedHashMap<>(); //프론트에서 보여지는 자동 계산 결과
+    Map<String, Map<String, Double>> distributedValues = new LinkedHashMap<>(); //프론트에서 보여지는 자동 계산 결과
 
-    private Map<String, FinalCal> calculatedMacro=  new LinkedHashMap<>();
+    private Map<String, FinalCal> molecularMass =  new LinkedHashMap<>();
 
-    //분자식, 한글명, 질량
+    //1. 기준값 - 프론트에서 넘어옴
+    private Map<String, Double> standardValues = new LinkedHashMap<>();
+    //2. 원수 고려값 - 프론트에서 넘어옴
+    private Map<String, Double> consideredValues = new LinkedHashMap<>();
 
-    //넘어와야 할 처방 농도 양식 예시 - 순서 그대로 유지되어야 함
+    //3. 처방 값. 넘어와야 할 처방 농도 양식 예시 - 순서 그대로 유지되어야 함 (기준값 - 원수고려값)
     private Map<String, Double> fertilization = new LinkedHashMap<String, Double>(){
         {
             put("NO3N", 15.5);
@@ -33,16 +38,28 @@ public class MacroCalculator{
             put("SO4S",1.75);
         }
     };
-    //출력용 다량원수 별 100배액 계산-  calculatedMacro에 저장
-    private void calculateWith100(){
-        if(distributedValues.size()==0) System.err.println("다량 원수 처방 농도가 계산되지 않았습니다.");
-        String query = "insert into calculatedMacro (";
 
-
+    //사용자 아이디 프론트에서 set 해줘야 함
+    private void setUser_id(int id){
+        user_id = id;
+    }
+    private int getUser_id(){
+        return user_id;
     }
 
-    //분자 별 갖고 있는 다량 원소 비율을 가져옴
+    //처방 농도 계산 함수. '기준량 - 원소성분 = 처방농도' 수행. 원수 고려 안하면 0으로 넘어와야 함
+    private void calculateFertilizationValue(Map<String, Double> standardValuesFront, Map<String, Double> consideredValuesFront ){
+        for (String valueName : standardValuesFront.keySet()) {
+            if(consideredValuesFront.get(valueName) < standardValuesFront.get(valueName)){
+                fertilization.put(valueName, standardValuesFront.get(valueName) - consideredValuesFront.get(valueName));
+            }else{ //원수 고려값을 기준값보다 크게 입력한 경우- 에러
+                System.err.println("입력한 원수 ["+ valueName+ "]값이 기준 값을 초과했습니다.");
+            }
+        }
+    }
 
+
+    //분자 별 갖고 있는 다량 원소 비율을 가져옴
     private void getMajorCompoundRatio(boolean is4){ //4수염인지 10수염인지를 판단하는 파라미터
 
         String query = "select * from macronutrients";
@@ -57,8 +74,7 @@ public class MacroCalculator{
                 String macro_kr = resultSet.getString("macro_kr"); //화합물 한글명
                 double mass = resultSet.getDouble("mass");//화합물 질량
 
-                distributedValues.put(macro, resultSet.getDouble("mass"));
-                calculatedMacro.put(macro, new FinalCal(macro_kr, mass)); //100배액 계산을 위해 화합물과 그 질량 저장
+                molecularMass.put(macro, new FinalCal(macro_kr, mass)); //100배액 계산을 위해 화합물과 그 질량 저장
 
                 Map<String, Double> compoundRatio = new LinkedHashMap<>(); //ex. 질산칼슘4수염이 갖는 원수의 이름과 질량비를 갖는 map
                 for (String major : fertilization.keySet()) {
@@ -72,10 +88,11 @@ public class MacroCalculator{
             e.printStackTrace();
         }
     }
-    public Map<String, Map<String, Double>> calculateWithRatio(Map<String, Double> userFertilization){
+
+    //자동계산 시 프론트에서 보여지는 분배된 값
+    public Map<String, Map<String, Double>> calculateDistributedValues(Map<String, Double> userFertilization){
         double minRatioValue = Double.MAX_VALUE;
         //Map<String, Double> result = fertilization; //나중에 userFertilization이 들어오면 바꿀것 (result = userFertilization으로)
-        Map<String, Map<String, Double>> results = new LinkedHashMap<>();
 
         for (String compound : compoundsRatio.keySet()) { //ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}에서 NH4NO3가 compound
             Map<String, Double> result = new LinkedHashMap<>();
@@ -90,14 +107,10 @@ public class MacroCalculator{
                 allocatedAmount = ratio * minRatioValue;
                 result.put(macro, allocatedAmount);
             }
-            distributedValues.put(compound, minRatioValue * distributedValues.get(compound)); //최소 비와 화합물의 분자량을 곱해서 넣음
-            results.put(compound, result);
-
-            //*****************************최종 딱 minValue * mass 한 값만 들어와야 함*****************
-            //이 코드 작동하는지 test 해볼것 (나머지 value유지된 채, mass가 갱신되는지)
-            calculatedMacro.get(compound).setMass(minRatioValue * calculatedMacro.get(compound).getMass());
+            distributedValues.put(compound, result);
+            molecularMass.get(compound).setMass(minRatioValue * molecularMass.get(compound).getMass());//최종 minValue * mass 한 값
         }
-        return results; //남은 배양액이 들어감 (원수 고려 없는 경우, 정상적으로 수행되면 모든 값이 0)
+        return distributedValues;
     }
 
     private double getMinRatioValue(Map<String, Double> innerRatio, Map<String, Double> result, double minRatioValue) {
@@ -111,20 +124,49 @@ public class MacroCalculator{
         return minRatioValue;
     }
 
-    //원수 고려 없이 계산 - 프론트에서 hashMap fertilization, is4(4수염인지 10수염인지) 넘어오게 파라미터 넣기
-    public Map<String, Map<String, Double>> calculateWithoutConsideredValue(Map<String, Double> userFertilization, boolean is4, boolean isConsidered){ //처방 농도
-        if(isConsidered){
-            //기준값에서 원수값을 ?서 처방농도를 구하는 함수 필요
-        }
+    //자동 계산 - 프론트에서 hashMap fertilization, is4(4수염인지 10수염인지) 넘어오게 파라미터 넣기
+    public Map<String, Map<String, Double>> calculate(Map<String, Double> userFertilization, boolean is4, boolean isConsidered){ //처방 농도
         getMajorCompoundRatio(is4);
-        return calculateWithRatio(userFertilization);
+        return calculateDistributedValues(userFertilization);
     }
     //원수 고려 여부, 처방 농도, 고려 원수, 기준값 -> db에 저장하는 함수
-    public void save(boolean isConsidered, Map<String, Double> userFertilization, Map<String, Double> consideratedValue, Map<String, Double>standardValue ){
-        String query = "";
-        if(isConsidered){
+    public void save(boolean isConsidered, String unit, Map<String, Double> userFertilization, Map<String, Double> consideredValue, Map<String, Double>standardValue ){
+        insertIntoUsersMacroConsideredValues(isConsidered, unit); //원수 고려 값 테이블에 저장
+        insertIntoUsersMacroCalculatedMass();
 
+    }
+
+    private void insertIntoUsersMacroCalculatedMass() { //계산된 질량 값 DB 저장
+
+    }
+
+    private void insertIntoUsersMacroConsideredValues(boolean isConsidered, String unit) { //고려 원수 값 DB 저장
+        String query = "insert into users_macro_consideredValues ";
+        String user_id = getUser_id()+"";
+        String values = "(is_considered, NO3N, NH4N, " +
+                "H2PO4, K, Ca, Mg, SO4S, unit, user_id) values (";
+
+        if(!isConsidered){
+            query += "(is_considered, unit, user_id) values (false, "+unit+", "+user_id+")";
+        } else{
+            values += "true";
+            for (String value : consideredValues.keySet()) {
+                values += ", "+consideredValues.get(value);
+            }
+            query += values;
         }
+        try (Connection connection = conn.getConnection();
+            Statement stmt = connection.createStatement()) {
+            int result = stmt.executeUpdate(query);
+            if (result > 0) {
+                System.out.println("success insert users_macro_consideredValues");
+            } else {
+                System.out.println("insert failed users_macro_consideredValues");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
