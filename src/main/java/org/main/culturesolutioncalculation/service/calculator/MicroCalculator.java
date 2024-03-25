@@ -152,7 +152,7 @@ public class MicroCalculator{
             double concentration_100fold = molecularMass.get(micro).getMass()*100/1000;
 
             String query = "insert into users_micro_calculatedMass (user_id, users_micro_consideredValues_id, micro, mass, unit, solution) " +
-                    "values ("+user_id+", "+users_micro_consideredValues_id+", "+"'"+micro+"'"+", "+concentration_100fold+", "+unit+", "+molecularMass.get(micro).getSolution()+")";
+                    "values ("+user_id+", "+users_micro_consideredValues_id+", "+"'"+micro+"'"+", "+concentration_100fold+", "+unit+", '"+molecularMass.get(micro).getSolution()+"')";
 
             System.out.println("query = " + query);
             try(Connection connection = conn.getConnection();
