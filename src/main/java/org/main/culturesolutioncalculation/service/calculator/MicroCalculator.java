@@ -14,6 +14,9 @@ import java.util.Map;
 public class MicroCalculator{
     private DatabaseConnector conn;
     private int user_id;
+    private int getUser_id(){
+        return this.user_id;
+    }
     private int users_micro_consideredValues_id;
     private Map<String, Map<String, Double>> compoundsRatio = new LinkedHashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
 
@@ -128,9 +131,78 @@ public class MicroCalculator{
         return distributedValues;
     }
 
-    //원수 고려 없이 계산 - 프론트에서 hashMap fertilization(처방농도), 선택한 화합식 문자열 배열 받아야함
+    //프론트에서 hashMap fertilization(처방농도), 선택한 화합식 문자열 배열 받아야함
     private Map<String, Map<String, Double>> calculate(Map<String, Double> userFertilization, List<String> userMicroNutrients) { //처방 농도
         getMajorCompoundRatio(userMicroNutrients);
         return calculateWithRatio(userFertilization);
+    }
+
+    //원수 고려 여부, 처방 농도, 고려 원수, 기준값 -> db에 저장하는 함수
+    public void save(boolean isConsidered, String unit, Map<String, Double> userFertilization, Map<String, Double> consideredValue, Map<String, Double>standardValue ){
+        insertIntoUsersMicroConsideredValues(isConsidered, unit); //원수 고려 값 테이블에 저장
+        insertIntoUsersMicroFertilization();
+        insertIntoUsersMicroCalculatedMass();
+
+    }
+
+    private void insertIntoUsersMicroCalculatedMass() {
+    }
+
+    private void insertIntoUsersMicroFertilization() {
+        for (String micro : distributedValues.keySet()) {
+            String query = "insert into users_micro_fertilization (users_micro_consideredValues_id, micro";
+            for (String element : distributedValues.get(micro).keySet()) {
+                query += ", "+element;
+            }
+            query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
+            query += "values (" +users_micro_consideredValues_id+", "+"'"+micro+"'";
+            for (String element : distributedValues.get(micro).keySet()) {
+                query += ", "+distributedValues.get(micro).get(element);
+            }
+            query += ")";
+            try(Connection connection = conn.getConnection();
+                Statement stmt = connection.createStatement();){
+                int result = stmt.executeUpdate(query);
+
+                //if(result>0) System.out.println("success insert users_macro_fertilization");
+                //else System.out.println("insert failed users_macro_fertilization");
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void insertIntoUsersMicroConsideredValues(boolean isConsidered, String unit) { //고려 원수 값 DB 저장
+        String query = "insert into users_micro_consideredValues ";
+        String user_id = getUser_id()+"";
+        String values = "(is_considered, Fe, Cu, " +
+                "B, Mn, Zn, Mo, unit, user_id) values (";
+
+        if(!isConsidered){
+            query += "(is_considered, unit, user_id) values (false, "+unit+", "+user_id+")";
+        } else{
+            values += "true";
+            for (String value : consideredValues.keySet()) {
+                values += ", "+consideredValues.get(value);
+            }
+            query += values;
+        }
+        try (Connection connection = conn.getConnection();
+             Statement stmt = connection.createStatement()) {
+            int result = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            if (result > 0) {
+                System.out.println("success insert users_micro_consideredValues");
+                ResultSet generatedKeys = stmt.getGeneratedKeys();
+                if(generatedKeys.next()){
+                    int id = generatedKeys.getInt(1);
+                    users_micro_consideredValues_id = id; //fk로 사용하기 위해 배정
+                }
+            } else {
+                System.out.println("insert failed users_micro_consideredValues");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 }
