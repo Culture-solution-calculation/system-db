@@ -145,7 +145,27 @@ public class MicroCalculator{
 
     }
 
+    //미량원소 100배액식 저거 맞나 확인받기
     private void insertIntoUsersMicroCalculatedMass() {
+        String unit = "'kg'";
+        for (String micro : molecularMass.keySet()) {
+            double concentration_100fold = molecularMass.get(micro).getMass()*100/1000;
+
+            String query = "insert into users_micro_calculatedMass (user_id, users_micro_consideredValues_id, micro, mass, unit) " +
+                    "values ("+user_id+", "+users_micro_consideredValues_id+", "+"'"+micro+"'"+", "+concentration_100fold+", "+unit+")";
+
+            System.out.println("query = " + query);
+            try(Connection connection = conn.getConnection();
+                Statement stmt = connection.createStatement();){
+                int result = stmt.executeUpdate(query);
+
+                //if(result>0) System.out.println("success");
+                //else System.out.println("insert failed");
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+        }
+
     }
 
     private void insertIntoUsersMicroFertilization() {

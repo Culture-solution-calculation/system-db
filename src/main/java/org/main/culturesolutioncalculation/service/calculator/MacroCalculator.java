@@ -168,11 +168,15 @@ public class MacroCalculator{
         }
     }
 
+    //100배액(kg) 계산식 저거 맞나 확인받기
     private void insertIntoUsersMacroCalculatedMass() { //계산된 질량 값 DB 저장
         String unit = "'kg'";
+
         for (String macro : molecularMass.keySet()) {
+            double concentration_100fold = molecularMass.get(macro).getMass() / 10;
+
             String query = "insert into users_macro_calculatedMass (user_id, users_macro_consideredValues_id, macro, mass, unit) " +
-                    "values ("+user_id+", "+users_macro_consideredValues_id+", "+"'"+macro+"'"+", "+molecularMass.get(macro).getMass()+", "+unit+")";
+                    "values ("+user_id+", "+users_macro_consideredValues_id+", "+"'"+macro+"'"+", "+concentration_100fold+", "+unit+")";
 
             System.out.println("query = " + query);
             try(Connection connection = conn.getConnection();
