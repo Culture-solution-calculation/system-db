@@ -124,7 +124,7 @@ public class MacroCalculator{
         double ratio, available, amountBasedOnRatio;
         for (String macro : innerRatio.keySet()) { // ex; compound에 대한 {NH4N=1.0, NO3N=1.0}, NH4N과 NO3N이 macro
             available = result.get(macro); //해당 원수의 처방농도
-            ratio = innerRatio.get(macro);
+            ratio = innerRatio.get(macro); //해당 원수의 화합물에 대한 첨가 비율
             amountBasedOnRatio = available / ratio;
             minRatioValue = Math.min(minRatioValue, amountBasedOnRatio);
         }

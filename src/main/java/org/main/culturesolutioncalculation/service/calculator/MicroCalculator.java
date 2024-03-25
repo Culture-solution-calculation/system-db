@@ -99,7 +99,7 @@ public class MicroCalculator{
 
     public Map<String, Map<String, Double>> calculateWithRatio(Map<String, Double> userFertilization){
         double ratioValue = Double.MAX_VALUE;
-        Map<String, Double> result = fertilization; //나중에 userFertilization이 들어오면 바꿀것 (result = userFertilization으로)
+        Map<String, Double> results = fertilization; //나중에 userFertilization이 들어오면 바꿀것 (result = userFertilization으로)
 
         for (String compound : compoundsRatio.keySet()) { //ex; {ZnSO4·7H2O , {Zn=1.0, mass=65.37}}에서 ZnSO4·7H2O이 compound
             // 분자량*시비량/원자량/함량갯수 = 100배액
@@ -107,36 +107,27 @@ public class MicroCalculator{
               name = ZnSO4쨌7H2O
               compoundsRatio = {content_count=1.0, Zn=1.0, mass=65.37}
              */
-            double atomicWeight = compoundsRatio.get(compound).get("mass");
-            double molecularWeight =  molecularMass.get(compound).getMass();
-            double contentCount = compoundsRatio.get(compound).get("content_count");
-            double fertilizationAmount = result.get(compound);
-            double microValue;
+            Map<String, Double> result = new LinkedHashMap<>();
+            double atomicWeight = compoundsRatio.get(compound).get("mass"); //원자량
+            double molecularWeight =  molecularMass.get(compound).getMass(); //분자량
+            double contentCount = compoundsRatio.get(compound).get("content_count"); //함량갯수
+            double fertilizationAmount; //시비량
+            double microValue = 0.0; //계산 결과
 
-            for (String micro : result.keySet()) {
+            for (String micro : results.keySet()) { //처방농도 micro
                 if(compoundsRatio.get(compound).containsKey(micro)){
-                    
-                    microValue = compoundsRatio.get(compound).get(micro);
+                    fertilizationAmount = results.get(micro);
+                    microValue = molecularWeight * fertilizationAmount / atomicWeight / contentCount;
+                    result.put(micro, fertilizationAmount);
                 }
             }
-
-            distributedValues.put(compound, result);
-            molecularMass.get(compound).setMass(ratioValue * molecularMass.get(compound).getMass());//최종 minValue * mass 한 값
+            distributedValues.put(compound, result); //해당 화합물의 원수 처방량
+            molecularMass.get(compound).setMass(microValue);//최종 minValue * mass 한 값
         }
 
         return distributedValues;
     }
-    double getRatioValue(Map<String, Double> innerRatio, Map<String, Double> result, double ratioValue) {
-        double ratio;
-        for (String micro : innerRatio.keySet()) { // ex; compound에 대한 {NH4N=1.0, mass=65.0}, NH4N과 NO3N이 macro
-            if(micro.equals("mass")) continue;
-            double available = result.get(micro); //해당 원수의 처방농도
-            ratio = innerRatio.get(micro);
-            double amountBasedOnRatio = available / ratio;
-            ratioValue = Math.min(ratioValue, amountBasedOnRatio);
-        }
-        return ratioValue;
-    }
+
     //원수 고려 없이 계산 - 프론트에서 hashMap fertilization(처방농도), 선택한 화합식 문자열 배열 받아야함
     private Map<String, Map<String, Double>> calculate(Map<String, Double> userFertilization, List<String> userMicroNutrients) { //처방 농도
         getMajorCompoundRatio(userMicroNutrients);
