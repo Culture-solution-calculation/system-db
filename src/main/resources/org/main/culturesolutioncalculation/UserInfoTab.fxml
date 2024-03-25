@@ -6,7 +6,7 @@
 
 <Tab xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.main.culturesolutioncalculation.UserInfoTabController"
+     fx:controller="org.main.culturesolutioncalculation.front.UserInfoTabController"
      fx:id="userInfoTab"
      text="사용자정보">
     <content>

@@ -175,8 +175,8 @@ public class MacroCalculator{
         for (String macro : molecularMass.keySet()) {
             double concentration_100fold = molecularMass.get(macro).getMass() / 10;
 
-            String query = "insert into users_macro_calculatedMass (user_id, users_macro_consideredValues_id, macro, mass, unit) " +
-                    "values ("+user_id+", "+users_macro_consideredValues_id+", "+"'"+macro+"'"+", "+concentration_100fold+", "+unit+")";
+            String query = "insert into users_macro_calculatedMass (user_id, users_macro_consideredValues_id, macro, mass, unit, solution) " +
+                    "values ("+user_id+", "+users_macro_consideredValues_id+", "+"'"+macro+"'"+", "+concentration_100fold+", "+unit+", "+molecularMass.get(macro).getSolution()+")";
 
             System.out.println("query = " + query);
             try(Connection connection = conn.getConnection();
