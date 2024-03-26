@@ -1,5 +1,6 @@
 package org.main.culturesolutioncalculation.domain;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -8,13 +9,13 @@ public class Users {
     private int id;
     private String name;
     private String mediumType;
-    private String requestDate;
+    private Timestamp requestDate;
 
     private String address;
     private String contact;
     private String cropName;
 
-    public Users(int id, String name, String mediumType, String requestDate, String address, String contact, String cropName) {
+    public Users(int id, String name, String mediumType, Timestamp requestDate, String address, String contact, String cropName) {
         this.id = id;
         this.name = name;
         this.mediumType = mediumType;
@@ -36,7 +37,7 @@ public class Users {
         return mediumType;
     }
 
-    public String getRequestDate() {
+    public Timestamp getRequestDate() {
         return requestDate;
     }
 

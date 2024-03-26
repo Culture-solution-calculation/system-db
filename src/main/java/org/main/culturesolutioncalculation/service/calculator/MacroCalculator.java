@@ -14,7 +14,7 @@ public class MacroCalculator{
 
     private DatabaseConnector conn;
 
-    private int user_id;
+    private int users_id;
     private int users_macro_consideredValues_id;
 
     private Map<String, Map<String, Double>> compoundsRatio = new LinkedHashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
@@ -42,11 +42,11 @@ public class MacroCalculator{
     };
 
     //사용자 아이디 프론트에서 set 해줘야 함
-    private void setUser_id(int id){
-        user_id = id;
+    private void setUsers_id(int id){
+        users_id = id;
     }
-    private int getUser_id(){
-        return user_id;
+    private int getUsers_id(){
+        return users_id;
     }
 
 
@@ -146,12 +146,12 @@ public class MacroCalculator{
 
     private void insertIntoUsersMacroFertilization() { //계산된 처방값 DB 저장
         for (String macro : distributedValues.keySet()) {
-            String query = "insert into users_macro_fertilization (users_macro_consideredValues_id, macro";
+            String query = "insert into users_macro_fertilization (users_id, macro";
             for (String element : distributedValues.get(macro).keySet()) {
                 query += ", "+element;
             }
             query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
-            query += "values (" +users_macro_consideredValues_id+", "+"'"+macro+"'";
+            query += "values (" + users_id +", "+"'"+macro+"'";
             for (String element : distributedValues.get(macro).keySet()) {
                 query += ", "+distributedValues.get(macro).get(element);
             }
@@ -176,7 +176,7 @@ public class MacroCalculator{
             double concentration_100fold = molecularMass.get(macro).getMass() / 10;
 
             String query = "insert into users_macro_calculatedMass (user_id, users_macro_consideredValues_id, macro, mass, unit, solution) " +
-                    "values ("+user_id+", "+users_macro_consideredValues_id+", "+"'"+macro+"'"+", "+concentration_100fold+", "+unit+", "+molecularMass.get(macro).getSolution()+")";
+                    "values ("+ users_id +", "+users_macro_consideredValues_id+", "+"'"+macro+"'"+", "+concentration_100fold+", "+unit+", "+molecularMass.get(macro).getSolution()+")";
 
             System.out.println("query = " + query);
             try(Connection connection = conn.getConnection();
@@ -193,7 +193,7 @@ public class MacroCalculator{
 
     private void insertIntoUsersMacroConsideredValues(boolean isConsidered, String unit) { //고려 원수 값 DB 저장
         String query = "insert into users_macro_consideredValues ";
-        String user_id = getUser_id()+"";
+        String user_id = getUsers_id()+"";
         String values = "(is_considered, NO3N, NH4N, " +
                 "H2PO4, K, Ca, Mg, SO4S, unit, user_id) values (";
 

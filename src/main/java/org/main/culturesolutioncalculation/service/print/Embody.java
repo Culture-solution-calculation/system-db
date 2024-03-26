@@ -44,6 +44,11 @@ public class Embody implements Print{
     private String pdfName;
     private Map<String, FinalCal> MacroMolecularMass = new LinkedHashMap<>();
     private Map<String, FinalCal> MicroMolecularMass = new LinkedHashMap<>();
+
+    private List<String> macroNutrientList = Arrays.asList(
+            "Ca","NO3N","NH4N","K","H2PO4","SO4S","Mg"
+    );
+
     private Map<String, Map<String, Double>> MacroCompoundsRatio = new LinkedHashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
     private Map<String, Map<String, Double>> MicroCompoundsRatio = new LinkedHashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
     /*
@@ -144,17 +149,18 @@ public class Embody implements Print{
 
             try(ResultSet resultSet = pstmt.executeQuery()){
                 while(resultSet.next()){
-                    String macro = resultSet.getString("macro");;
-                    Map<String, Double> compoundRatio = new LinkedHashMap<>();
-                    String subQuery = "select * from ";//users_macro_fertilization에서 값이 있는 원수만 골라 담기
+                    String macro = resultSet.getString("macro");
+                    Map<String, Double> compoundRatio = new HashMap<>();
+                    for (String nutrient : macroNutrientList) {
+                        compoundRatio.put(nutrient, resultSet.getDouble(nutrient));
+                    }
+                    MacroCompoundsRatio.put(macro, compoundRatio);
                 }
             }
 
         }catch (SQLException e){
-
+            e.printStackTrace();
         }
-
-
     }
 
     @Override

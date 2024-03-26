@@ -6,16 +6,15 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class MicroCalculator{
     private DatabaseConnector conn;
-    private int user_id;
-    private int getUser_id(){
-        return this.user_id;
+    private int users_id;
+    private int getUsers_id(){
+        return this.users_id;
     }
     private int users_micro_consideredValues_id;
     private Map<String, Map<String, Double>> compoundsRatio = new LinkedHashMap<>(); // ex; {NH4NO3 , {NH4N=1.0, NO3N=1.0}}
@@ -152,7 +151,7 @@ public class MicroCalculator{
             double concentration_100fold = molecularMass.get(micro).getMass()*100/1000;
 
             String query = "insert into users_micro_calculatedMass (user_id, users_micro_consideredValues_id, micro, mass, unit, solution) " +
-                    "values ("+user_id+", "+users_micro_consideredValues_id+", "+"'"+micro+"'"+", "+concentration_100fold+", "+unit+", '"+molecularMass.get(micro).getSolution()+"')";
+                    "values ("+ users_id +", "+users_micro_consideredValues_id+", "+"'"+micro+"'"+", "+concentration_100fold+", "+unit+", '"+molecularMass.get(micro).getSolution()+"')";
 
             System.out.println("query = " + query);
             try(Connection connection = conn.getConnection();
@@ -170,12 +169,12 @@ public class MicroCalculator{
 
     private void insertIntoUsersMicroFertilization() {
         for (String micro : distributedValues.keySet()) {
-            String query = "insert into users_micro_fertilization (users_micro_consideredValues_id, micro";
+            String query = "insert into users_micro_fertilization (users_id, micro";
             for (String element : distributedValues.get(micro).keySet()) {
                 query += ", "+element;
             }
             query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
-            query += "values (" +users_micro_consideredValues_id+", "+"'"+micro+"'";
+            query += "values (" +users_id+", "+"'"+micro+"'";
             for (String element : distributedValues.get(micro).keySet()) {
                 query += ", "+distributedValues.get(micro).get(element);
             }
@@ -194,7 +193,7 @@ public class MicroCalculator{
 
     private void insertIntoUsersMicroConsideredValues(boolean isConsidered, String unit) { //고려 원수 값 DB 저장
         String query = "insert into users_micro_consideredValues ";
-        String user_id = getUser_id()+"";
+        String user_id = getUsers_id()+"";
         String values = "(is_considered, Fe, Cu, " +
                 "B, Mn, Zn, Mo, unit, user_id) values (";
 
