@@ -39,6 +39,7 @@ public class CropNutrientStandard {
         this.Mo = Mo;
     }
 
+
     public String getCropName() {
         return cropName;
     }

@@ -13,6 +13,7 @@ import com.itextpdf.tool.xml.pipeline.css.CssResolverPipeline;
 import com.itextpdf.tool.xml.pipeline.end.PdfWriterPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipeline;
 import com.itextpdf.tool.xml.pipeline.html.HtmlPipelineContext;
+import org.main.culturesolutioncalculation.domain.Users;
 import org.main.culturesolutioncalculation.service.calculator.FinalCal;
 
 import java.io.*;
@@ -27,7 +28,7 @@ import com.itextpdf.tool.xml.css.CssFile;
 import com.itextpdf.tool.xml.css.StyleAttrCSSResolver;
 import org.main.culturesolutioncalculation.service.database.DatabaseConnector;
 
-public class Abstract {
+public class Abstract implements Print{
 
     private DatabaseConnector conn;
     private Map<String, FinalCal> MacroMolecularMass = new LinkedHashMap<>();
@@ -36,21 +37,10 @@ public class Abstract {
     분석 기록에 들어가야 할 정보들 :
     사용자 이름, 분석 날짜, 재배 작물, 배양액 종류(네덜란드, 야마자키:이건 프론트에서 받아오기로)
      */
-    private String userName;
-    private int userId;
-    private LocalDateTime requestDate;
-    private String cropName;
+    private Users users;
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public void setRequestDate(LocalDateTime requestDate) {
-        this.requestDate = requestDate;
-    }
-
-    public void setCropName(String cropName) {
-        this.cropName = cropName;
+    public void setUsers(Users users) {
+        this.users = users;
     }
 
     //데이터베이스에서 꺼내와야함
@@ -70,7 +60,7 @@ public class Abstract {
             PreparedStatement pstmt = connection.prepareStatement(query)) {
 
             // 파라미터 바인딩
-            pstmt.setInt(1, userId);
+            pstmt.setInt(1, users.getId());
             pstmt.setString(2, formattedDate);
 
             try (ResultSet resultSet = pstmt.executeQuery()) {
@@ -106,7 +96,7 @@ public class Abstract {
              PreparedStatement pstmt = connection.prepareStatement(query)) {
 
             // 파라미터 바인딩
-            pstmt.setInt(1, userId);
+            pstmt.setInt(1, users.getId());
             pstmt.setString(2, formattedDate);
 
             try (ResultSet resultSet = pstmt.executeQuery()) {
@@ -129,7 +119,7 @@ public class Abstract {
     private String pdfName;
 
     public void setPdfName() {
-        this.pdfName = userName+"_"+requestDate+"_"+cropName+".pdf";
+        this.pdfName = users.getName()+"_"+users.getRequestDate()+"_"+users.getCropName()+".pdf";
     }
 
     public String getPdfName() {
@@ -164,7 +154,7 @@ public class Abstract {
 
             //HTML과 폰트 준비
             XMLWorkerFontProvider fontProvider = new XMLWorkerFontProvider(XMLWorkerFontProvider.DONTLOOKFORFONTS);
-            fontProvider.register("MALGUN.ttf","MalgunGothic");
+            fontProvider.register("css/MALGUN.ttf","MalgunGothic");
             CssAppliers cssAppliers = new CssAppliersImpl(fontProvider);
 
             HtmlPipelineContext htmlContext = new HtmlPipelineContext(cssAppliers);
@@ -193,22 +183,35 @@ public class Abstract {
         e.printStackTrace();
         }
 
-
-
-
     }
 
-    private String getAllHtmlStr() {
-        String htmlStr = "<html><head><body style='font-family: MalgunGothic;'>"+
-                "<table>"+
-                "<tr>";
+    public String getAllHtmlStr() {
+        String htmlStr = "<html><head><body style='font-family: MalgunGothic;'>";
+
+        htmlStr += getUserInfo();
+        htmlStr += getTable(htmlStr);
+
+        return htmlStr;
+    }
+
+    private String getTable(String htmlStr) {
+        htmlStr += "<table>" + "<tr>";
 
         htmlStr += getSolution("A");
         htmlStr += getSolution("B");
         htmlStr += getSolution("C");
 
-
         return htmlStr;
+    }
+
+    public String getUserInfo() {
+
+        return
+                "<p>의뢰자 성명: "+users.getName()+"</p>" +
+                        "<p>의뢰 일시: "+users.getRequestDate()+"</p>" +
+                        "<p>재배 작물: "+users.getCropName()+"</p>" +
+                        "<p>배양액 종류: "+users.getMediumType()+"</p>" +
+                        "<hr>";
     }
 
     private String getSolution(String solution) {
