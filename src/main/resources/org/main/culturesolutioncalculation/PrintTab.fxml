@@ -7,7 +7,7 @@
 
 <Tab xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.main.culturesolutioncalculation.front.PrintTabController"
+     fx:controller="org.main.culturesolutioncalculation.PrintTabController"
      text="프린트">
     <content>
         <SplitPane dividerPositions="0.25">

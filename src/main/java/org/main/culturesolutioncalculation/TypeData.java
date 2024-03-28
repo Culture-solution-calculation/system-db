@@ -1,4 +1,4 @@
-package org.main.culturesolutioncalculation.front;
+package org.main.culturesolutioncalculation;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,12 +11,15 @@ import java.util.ArrayList;
 public class TypeData {
 
     public static ObservableList<String> getCropList(String type) {
+        System.out.println("============log test=========");
+        System.out.println("type = " + type);
         ObservableList<String> cropList = FXCollections.observableArrayList();
 
         CSVDataReader csvDataReader = new CSVDataReader();
         ArrayList<String> nutrientSolutionList = csvDataReader.readDir();
         for (String nutrientSolutionName : nutrientSolutionList) {
             if (nutrientSolutionName.equals(type)) {
+
                 NutrientSolution nutrientSolution = csvDataReader.readFile(nutrientSolutionName);
                 for (CropNutrientStandard crop : nutrientSolution.getCropList()) {
                     cropList.add(crop.getCropName());

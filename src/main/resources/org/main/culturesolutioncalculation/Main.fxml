@@ -5,7 +5,7 @@
 <?import java.net.URL?>
 
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.main.culturesolutioncalculation.front.MainController">
+      fx:controller="org.main.culturesolutioncalculation.MainController">
     <stylesheets>
         <URL value="@style/application.css" />
     </stylesheets>

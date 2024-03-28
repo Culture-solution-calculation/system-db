@@ -143,30 +143,52 @@ public class MacroCalculator{
         insertIntoUsersMacroCalculatedMass();
 
     }
+    private void insertIntoUsersMacroFertilization(){
+        String query = "insert into users_macro_fertilization (users_id";
+        for (String macro : fertilization.keySet()) {
+            query += ", "+macro;
+        }
+        query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
+        query += "values (" + users_id;
 
-    private void insertIntoUsersMacroFertilization() { //계산된 처방값 DB 저장
-        for (String macro : distributedValues.keySet()) {
-            String query = "insert into users_macro_fertilization (users_id, macro";
-            for (String element : distributedValues.get(macro).keySet()) {
-                query += ", "+element;
-            }
-            query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
-            query += "values (" + users_id +", "+"'"+macro+"'";
-            for (String element : distributedValues.get(macro).keySet()) {
-                query += ", "+distributedValues.get(macro).get(element);
-            }
-            query += ")";
-            try(Connection connection = conn.getConnection();
-                Statement stmt = connection.createStatement();){
-                int result = stmt.executeUpdate(query);
+        for (String macro : fertilization.keySet()) {
+            query += ", "+fertilization.get(macro);
+        }
+        query += ")";
+        try(Connection connection = conn.getConnection();
+            Statement stmt = connection.createStatement();){
+            int result = stmt.executeUpdate(query);
 
-                //if(result>0) System.out.println("success insert users_macro_fertilization");
-                //else System.out.println("insert failed users_macro_fertilization");
-            }catch (SQLException e){
-                e.printStackTrace();
-            }
+            //if(result>0) System.out.println("success insert users_macro_fertilization");
+            //else System.out.println("insert failed users_macro_fertilization");
+        }catch (SQLException e){
+            e.printStackTrace();
         }
     }
+
+//    private void insertIntoUsersMacroFertilization() { //계산된 처방값 DB 저장
+//        for (String macro : distributedValues.keySet()) {
+//            String query = "insert into users_macro_fertilization (users_id, macro";
+//            for (String element : distributedValues.get(macro).keySet()) {
+//                query += ", "+element;
+//            }
+//            query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
+//            query += "values (" + users_id +", "+"'"+macro+"'";
+//            for (String element : distributedValues.get(macro).keySet()) {
+//                query += ", "+distributedValues.get(macro).get(element);
+//            }
+//            query += ")";
+//            try(Connection connection = conn.getConnection();
+//                Statement stmt = connection.createStatement();){
+//                int result = stmt.executeUpdate(query);
+//
+//                //if(result>0) System.out.println("success insert users_macro_fertilization");
+//                //else System.out.println("insert failed users_macro_fertilization");
+//            }catch (SQLException e){
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     //100배액(kg) 계산식 저거 맞나 확인받기
     private void insertIntoUsersMacroCalculatedMass() { //계산된 질량 값 DB 저장

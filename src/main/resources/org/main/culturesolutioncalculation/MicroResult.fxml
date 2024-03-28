@@ -6,7 +6,7 @@
 
 <VBox
     xmlns:fx="http://javafx.com/fxml"
-    fx:controller="org.main.culturesolutioncalculation.front.MicroResultController">
+    fx:controller="org.main.culturesolutioncalculation.MicroResultController">
     <stylesheets>
         <URL value="@style/application.css" />
     </stylesheets>

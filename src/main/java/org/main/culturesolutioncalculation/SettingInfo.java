@@ -1,4 +1,4 @@
-package org.main.culturesolutioncalculation.front;
+package org.main.culturesolutioncalculation;
 
 import java.util.HashMap;
 import java.util.Map;

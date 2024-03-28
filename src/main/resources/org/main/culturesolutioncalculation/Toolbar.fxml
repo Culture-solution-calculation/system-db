@@ -6,7 +6,7 @@
 
 <ToolBar xmlns="http://javafx.com/javafx/17.0.2-ea"
          xmlns:fx="http://javafx.com/fxml/1"
-         fx:controller="org.main.culturesolutioncalculation.front.ToolbarController">
+         fx:controller="org.main.culturesolutioncalculation.ToolbarController">
     <stylesheets>
         <URL value="@style/application.css" />
     </stylesheets>

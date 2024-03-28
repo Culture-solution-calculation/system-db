@@ -1,10 +1,9 @@
-package org.main.culturesolutioncalculation.front;
+package org.main.culturesolutioncalculation;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import org.main.culturesolutioncalculation.Main;
 
 import java.util.HashMap;
 import java.util.Map;

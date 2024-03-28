@@ -33,11 +33,21 @@ public class Abstract implements Print{
     private DatabaseConnector conn;
     private Map<String, FinalCal> MacroMolecularMass = new LinkedHashMap<>();
     private Map<String, FinalCal> MicroMolecularMass = new LinkedHashMap<>();
+
     /*
     분석 기록에 들어가야 할 정보들 :
     사용자 이름, 분석 날짜, 재배 작물, 배양액 종류(네덜란드, 야마자키:이건 프론트에서 받아오기로)
      */
     private Users users;
+    private String pdfName;
+
+    public void setPdfName() {
+        this.pdfName = users.getName()+"_"+users.getRequestDate()+"_"+users.getCropName()+".pdf";
+    }
+
+    public String getPdfName() {
+        return pdfName;
+    }
 
     public void setUsers(Users users) {
         this.users = users;
@@ -116,15 +126,6 @@ public class Abstract implements Print{
 
     }
 
-    private String pdfName;
-
-    public void setPdfName() {
-        this.pdfName = users.getName()+"_"+users.getRequestDate()+"_"+users.getCropName()+".pdf";
-    }
-
-    public String getPdfName() {
-        return pdfName;
-    }
     public void setUp(){
         setMacroMolecularMass();
         setMicroMolecularMass();

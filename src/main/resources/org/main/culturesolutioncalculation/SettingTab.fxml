@@ -6,7 +6,7 @@
 
 <Tab xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.main.culturesolutioncalculation.front.SettingTabController"
+     fx:controller="org.main.culturesolutioncalculation.SettingTabController"
      fx:id="settingTab"
      text="설정">
     <content>

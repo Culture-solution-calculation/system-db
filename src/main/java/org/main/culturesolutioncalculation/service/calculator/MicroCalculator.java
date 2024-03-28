@@ -166,30 +166,52 @@ public class MicroCalculator{
         }
 
     }
+    private void insertIntoUsersMicroFertilization(){
+        String query = "insert into users_micro_fertilization (users_id";
+        for (String micro : fertilization.keySet()) {
+            query += ", "+micro;
+        }
+        query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
+        query += "values (" + users_id;
 
-    private void insertIntoUsersMicroFertilization() {
-        for (String micro : distributedValues.keySet()) {
-            String query = "insert into users_micro_fertilization (users_id, micro";
-            for (String element : distributedValues.get(micro).keySet()) {
-                query += ", "+element;
-            }
-            query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
-            query += "values (" +users_id+", "+"'"+micro+"'";
-            for (String element : distributedValues.get(micro).keySet()) {
-                query += ", "+distributedValues.get(micro).get(element);
-            }
-            query += ")";
-            try(Connection connection = conn.getConnection();
-                Statement stmt = connection.createStatement();){
-                int result = stmt.executeUpdate(query);
+        for (String micro : fertilization.keySet()) {
+            query += ", "+fertilization.get(micro);
+        }
+        query += ")";
+        try(Connection connection = conn.getConnection();
+            Statement stmt = connection.createStatement();){
+            int result = stmt.executeUpdate(query);
 
-                //if(result>0) System.out.println("success insert users_macro_fertilization");
-                //else System.out.println("insert failed users_macro_fertilization");
-            }catch (SQLException e){
-                e.printStackTrace();
-            }
+            //if(result>0) System.out.println("success insert users_macro_fertilization");
+            //else System.out.println("insert failed users_macro_fertilization");
+        }catch (SQLException e){
+            e.printStackTrace();
         }
     }
+
+//    private void insertIntoUsersMicroFertilization() {
+//        for (String micro : distributedValues.keySet()) {
+//            String query = "insert into users_micro_fertilization (users_id, micro";
+//            for (String element : distributedValues.get(micro).keySet()) {
+//                query += ", "+element;
+//            }
+//            query += ") "; //여기까지 query = insert into user_macro_fertilization (macro, NO3N, Ca)
+//            query += "values (" +users_id+", "+"'"+micro+"'";
+//            for (String element : distributedValues.get(micro).keySet()) {
+//                query += ", "+distributedValues.get(micro).get(element);
+//            }
+//            query += ")";
+//            try(Connection connection = conn.getConnection();
+//                Statement stmt = connection.createStatement();){
+//                int result = stmt.executeUpdate(query);
+//
+//                //if(result>0) System.out.println("success insert users_macro_fertilization");
+//                //else System.out.println("insert failed users_macro_fertilization");
+//            }catch (SQLException e){
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private void insertIntoUsersMicroConsideredValues(boolean isConsidered, String unit) { //고려 원수 값 DB 저장
         String query = "insert into users_micro_consideredValues ";

@@ -32,8 +32,8 @@ public class CSVDataReader {
         }
         try {
             URI uri = new URI(resourceUrl.toString() + "org/main/culturesolutioncalculation/data");
-            this.resourcePath = Paths.get(uri);
-            
+            this.resourcePath = Path.of("org/main/culturesolutioncalculation/data/");
+            //this.resourcePath = Paths.get(uri);
             System.out.println("Final URL: " + uri.toURL());
         } catch (URISyntaxException | MalformedURLException e) {
             throw new IllegalStateException("Error creating resource path.", e);
@@ -63,9 +63,11 @@ public class CSVDataReader {
         ArrayList<CropNutrientStandard> crops = new ArrayList<>();
         // CSV 파일 경로 확인
         Path csvFilePath = resourcePath.resolve(fileName+".txt");
+        String resourcePath = "org/main/culturesolutioncalculation/data/" + fileName + ".txt";
 
         // CSVReader를 try-with-resources로 사용하여 리소스 해제
-        try (InputStream inputStream = Files.newInputStream(csvFilePath);
+        try (//InputStream inputStream = Files.newInputStream(csvFilePath);
+             InputStream inputStream = classLoader.getResourceAsStream(resourcePath);
              InputStreamReader reader = new InputStreamReader(inputStream, "euc-kr");
              BufferedReader bufferedReader = new BufferedReader(reader);
              CSVReader csvReader = new CSVReader(bufferedReader)) {
