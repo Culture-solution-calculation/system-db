@@ -17,8 +17,8 @@ public class UserService {
             Statement stmt = connection.createStatement();){
             int result = stmt.executeUpdate(query);
 
-            //if(result>0) System.out.println("success insert users");
-            //else System.out.println("insert failed users");
+            if(result>0) System.out.println("success insert users");
+            else System.out.println("insert failed users");
 
         }catch (SQLException e){
             e.printStackTrace();

@@ -229,7 +229,7 @@ public class Embody implements Print{
                         "<p>의뢰 일시: "+users.getRequestDate()+"</p>" +
                         "<p>재배 작물: "+users.getCropName()+"</p>" +
                         "<p>배양액 종류: "+users.getMediumType()+"</p>" +
-                        "<hr>";
+                        "<br></br><br></br><br></br> ";
     }
     public void setPdfName() {
         this.pdfName = users.getName()+"_"+users.getRequestDate()+"_"+users.getCropName()+".pdf";
@@ -309,7 +309,8 @@ public class Embody implements Print{
     @Override
     public String getAllHtmlStr() {
 
-        String htmlStr = "<html><head><body style='font-family: MalgunGothic;'>";
+        String htmlStr = "<html><head></head><body style='font-family: MalgunGothic;'> " +
+                "<h1>배양액 분석 기록 보고서</h1><br></br><hr> </hr>";
 
         htmlStr += getUserInfo();
         htmlStr += getTable(htmlStr);
@@ -318,7 +319,7 @@ public class Embody implements Print{
     }
 
     private String getTable(String htmlStr) {
-        htmlStr += "<table>" + "<tr>";
+        htmlStr += "<table>" ;
 
         CropNutrientStandard cropNutrients = getCropNutrients();
         htmlStr += getMacro(cropNutrients);
@@ -346,42 +347,50 @@ public class Embody implements Print{
 
     private String getMicro(CropNutrientStandard cropNutrientStandard) {
         String Html =
-                "<th class=\"category\">미량원소</th>" +
-                        "<th colspan=\"2\">Fe</th>" +
-                        "<th colspan=\"2\">Cu</th>" +
-                        "<th colspan=\"2\">B</th>" +
-                        "<th colspan=\"2\">Mn</th>" +
-                        "<th colspan=\"2\">Zn</th>" +
-                        "<th colspan=\"2\">Mo</th>" +
+                "<tr>"+
+                        "<th class=\"category\">미량원소</th>" +
+                        "<th>Fe</th>" +
+                        "<th>Cu</th>" +
+                        "<th>B</th>" +
+                        "<th>Mn</th>" +
+                        "<th>Zn</th>" +
+                        "<th>Mo</th>" +
+                        "<th>  </th>" +
                         "</tr>";
 
         //미량원소 기준량
-        Html += "<td class=\"name\">기준량</td>" +
+        Html += "<tr>"+
+                "<td class=\"name\">기준량</td>" +
                 "<td class=\"value\">"+cropNutrientStandard.getFe() +"</td>"+
                 "<td class=\"value\">"+cropNutrientStandard.getCu() +"</td>"+
                 "<td class=\"value\">"+cropNutrientStandard.getB() +"</td>"+
                 "<td class=\"value\">"+cropNutrientStandard.getMn() +"</td>"+
                 "<td class=\"value\">"+cropNutrientStandard.getZn() +"</td>"+
                 "<td class=\"value\">"+cropNutrientStandard.getMo()+"</td>"+
+                "<td class=\"value\">  </td>"+
                 "</tr>";
         //고려원수값
-        Html += "<td class=\"name\">원수성분</td>" +
+        Html += "<tr>"+
+                "<td class=\"name\">원수성분</td>" +
                 "<td class=\"value\">"+MicroConsideredValues.get("Fe") +"</td>"+
                 "<td class=\"value\">"+MicroConsideredValues.get("Cu") +"</td>"+
                 "<td class=\"value\">"+MicroConsideredValues.get("B") +"</td>"+
                 "<td class=\"value\">"+MicroConsideredValues.get("Mn") +"</td>"+
                 "<td class=\"value\">"+MicroConsideredValues.get("Zn")+"</td>"+
                 "<td class=\"value\">"+MicroConsideredValues.get("Mo")+"</td>"+
+                "<td class=\"value\">  </td>"+
                 "</tr>";
 
         //처방농도
-        Html += "<td class=\"name\">처방농도</td>" +
+        Html += "<tr>"+
+                "<td class=\"name\">처방농도</td>" +
                 "<td class=\"value\">"+MicroFertilization.get("Fe") +"</td>"+
                 "<td class=\"value\">"+MicroFertilization.get("Cu") +"</td>"+
                 "<td class=\"value\">"+MicroFertilization.get("B") +"</td>"+
                 "<td class=\"value\">"+MicroFertilization.get("Mn") +"</td>"+
                 "<td class=\"value\">"+MicroFertilization.get("Zn")+"</td>"+
                 "<td class=\"value\">"+MicroFertilization.get("Mo")+"</td>"+
+                "<td class=\"value\">  </td>"+
                 "</tr>";
 
         return Html;
@@ -390,6 +399,7 @@ public class Embody implements Print{
     private String getMacro(CropNutrientStandard cropNutrientStandard){
 
         String Html =
+                "<tr>"+
                 "<th class=\"category\">다량원소</th>" +
                         "<th colspan=\"2\">Ca</th>" +
                         "<th colspan=\"2\">NO3N</th>" +
@@ -401,7 +411,8 @@ public class Embody implements Print{
                         "</tr>";
 
         //다량원소 기준량
-        Html += "<td class=\"name\">기준량</td>" +
+        Html += "<tr>"+
+                "<td class=\"name\">기준량</td>" +
                 "<td class=\"value\">"+cropNutrientStandard.getCa() +"</td>"+
                 "<td class=\"value\">"+cropNutrientStandard.getNO3() +"</td>"+
                 "<td class=\"value\">"+cropNutrientStandard.getNH4() +"</td>"+
@@ -412,7 +423,8 @@ public class Embody implements Print{
                 "</tr>";
 
         //고려원수값
-        Html += "<td class=\"name\">원수성분</td>" +
+        Html += "<tr>"+
+                "<td class=\"name\">원수성분</td>" +
                 "<td class=\"value\">"+MacroConsideredValues.get("Ca") +"</td>"+
                 "<td class=\"value\">"+MacroConsideredValues.get("NO3") +"</td>"+
                 "<td class=\"value\">"+MacroConsideredValues.get("NH4")+"</td>"+
@@ -423,7 +435,8 @@ public class Embody implements Print{
                 "</tr>";
 
         //처방농도
-        Html += "<td class=\"name\">처방농도</td>" +
+        Html += "<tr>"+
+                "<td class=\"name\">처방농도</td>" +
                 "<td class=\"value\">"+MacroFertilization.get("Ca") +"</td>"+
                 "<td class=\"value\">"+MacroFertilization.get("NO3") +"</td>"+
                 "<td class=\"value\">"+MacroFertilization.get("NH4")+"</td>"+
@@ -438,13 +451,15 @@ public class Embody implements Print{
     private String getSolution(String solution) {
         String unit = "Kg";
         String Html =
+                "<tr>"+
                 "<th class=\"category\">"+solution+"액</th>" +
                         "<th colspan=\"2\">100배액 기준</th>" +
                         "</tr>";
 
         for (String macro : MacroMolecularMass.keySet()) {
             if(MacroMolecularMass.get(macro).getSolution().equals(solution)){
-                Html += "<td class=\"name\">"+macro+"</td>" +
+                Html += "<tr>"+
+                        "<td class=\"name\">"+macro+"</td>" +
                         "<td>"+String.format("%.2f",MacroMolecularMass.get(macro).getMass())+"</td>" +
                         "<td class=\"unit\">"+unit+"</td>" +
                         "</tr>";
@@ -452,7 +467,8 @@ public class Embody implements Print{
         }
         for (String micro : MicroMolecularMass.keySet()) {
             if(MicroMolecularMass.get(micro).getSolution().equals(solution)){
-                Html += "<td class=\"name\">"+micro+"</td>" +
+                Html += "<tr>"+
+                        "<td class=\"name\">"+micro+"</td>" +
                         "<td>"+String.format("%.2f",MicroMolecularMass.get(micro).getMass())+"</td>" +
                         "<td class=\"unit\">"+unit+"</td>" +
                         "</tr>";
